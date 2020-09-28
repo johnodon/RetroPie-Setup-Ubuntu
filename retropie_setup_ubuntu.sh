@@ -1,5 +1,16 @@
 #! /bin/bash
 
+#--------------------------------------------------------------------------------
+# This script provides a simple, one-step approach for installing the 
+# RetroPie-Setup-Ubuntu package and its requrired dependencies.
+#--------------------------------------------------------------------------------
+
+
+# Default repository and branch
+REPO_URL="https://github.com/johnodon/RetroPie-Setup-Ubuntu"
+REPO_BRANCH="menu_test"
+REPO_NAME="RetroPie-Setup-Ubuntu"
+
 # Computed variables
 USER="$SUDO_USER"
 USER_HOME="/home/$USER"
