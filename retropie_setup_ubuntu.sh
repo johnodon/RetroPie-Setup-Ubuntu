@@ -9,6 +9,28 @@ SCRIPT_FILE="$(basename $SCRIPT_PATH)"
 LOG_FILE="$SCRIPT_DIR/$(basename $0 .sh)-$(date +"%Y%m%d_%H%M%S").log"
 OPTIONAL_SCRIPT_DIR="$SCRIPT_DIR/optional_scripts"
 
+# Make sure the user is running the script via sudo
+if [ -z "$SUDO_USER" ]; then
+    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
+    exit 1
+fi
+# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
+if [[ "$SUDO_USER" == root ]]; then
+    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
+    exit 1
+fi
+
+# Clone the repository
+cd ~
+git clone $REPO_URL.git
+cd $REPO_NAME
+git switch $REPO_BRANCH
+cd $SCRIPT_DIR
+chown -R $SUDO_USER:$SUDO_USER $REPO_NAME
+
+# Mark the setup script as executable
+chmod +x $SCRIPT_DIR/$REPO_NAME/retropie_setup_ubuntu.sh
+
 # Global setting for APT recommended packages - leave blank for now.
 # It's a little more bloated, but we can't get a clean boot without it.
 #APT_RECOMMENDS="–no-install-recommends"
