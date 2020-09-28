@@ -610,8 +610,7 @@ function complete_install() {
 #--------------------------------------------------------------------------------
 #| INSTALLATION SCRIPT
 #--------------------------------------------------------------------------------
-# If no arguments are provided
-if [[ -z "$1" ]]; then
+select_install
 ### Pre-Flight functions ###
     function preflight() {
     check_perms
@@ -701,13 +700,4 @@ if [[ -z "$1" ]]; then
     remove_unneeded_packages
     complete_install
     }
-# If function names are provided as arguments, just run those functions
-# (then restore perms and clean up)
-else
-    enable_logging
-    for call_function in "$@"; do
-        $call_function
-    done
-    repair_permissions
-    complete_install
-fi
+
