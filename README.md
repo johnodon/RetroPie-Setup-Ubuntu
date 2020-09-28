@@ -52,13 +52,18 @@ If you are familiar with the use of [preseed](https://help.ubuntu.com/lts/instal
 ## RetroPie-Setup-Ubuntu
 
 - Log in as the `pi` user
-- Download the bootstrap script
 
-  `wget -q https://raw.githubusercontent.com/MizterB/RetroPie-Setup-Ubuntu/master/bootstrap.sh`
+- Install script dependencies
 
-- Run the bootstrap script
+  `sudo apt update && sudo apt install git software-properties-common dialog -y`
 
-  `sudo bash ./bootstrap.sh`
+- Clone into the RetroPie-Setup-Ubuntu repository
+
+  `git clone https://github.com/johnodon/RetroPie-Setup-Ubuntu`
+
+- Run the installer script
+
+  `sudo bash ./RetroPie-Setup-Ubuntu/retropie_setup_ubuntu.sh`
 
   Optionally, you can override the Git repository (-r) and branch (-b) used by the bootstrap script. This is helpful if you want to bootstrap from your own fork or a different branch. The available options can be passed as follows:
 
