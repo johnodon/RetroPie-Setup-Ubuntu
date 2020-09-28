@@ -545,7 +545,7 @@ function complete_install() {
 #--------------------------------------------------------------------------------
 # If no arguments are provided
 if [[ -z "$1" ]]; then
-    # Core functions
+### Core functions ###
     check_perms
     select_options
     enable_logging
@@ -561,9 +561,65 @@ if [[ -z "$1" ]]; then
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
     fix_quirks
-    # Optional functions
-    $OPTIONS
-    # Clean-up functions
+### Optional functions ###
+    for SELECTION in $OPTIONS; do
+    case $SELECTION in
+    install_latest_nvidia_drivers)
+        install_latest_nvidia_drivers
+        ;;
+    install_latest_intel_drivers)
+        install_latest_intel_drivers
+        ;;
+    install_latest_vulkan_drivers)
+        install_latest_vulkan_drivers
+        ;;
+    install_retroarch_shaders)
+        install_retroarch_shaders
+        ;;
+    enable_plymouth_theme)
+        enable_plymouth_theme
+        ;;
+    disable_apparmor)
+        disable_apparmor
+        ;;
+    disable_ipv6)
+        disable_ipv6
+        ;;
+    disable_avahi)
+        disable_avahi
+        ;;
+    disable_bluetooth)
+        disable_bluetooth
+        ;;
+    disable_kernel_mitigations)
+        disable_kernel_mitigations
+        ;;
+    disable_samba)
+        disable_samba
+        ;;
+    disable_unattended)
+        disable_unattended
+        ;;
+    enable_wifi)
+        enable_wifi
+        ;;
+    force_apt_ipv4)
+        force_apt_ipv4
+        ;;
+    add_bezelproject)
+        add_bezelproject
+        ;;
+    remove_snap)
+        remove_snap
+        ;;
+    xcursor_to_dot)
+        xcursor_to_dot
+        ;;
+    disable_modemmanager)
+        disable_modemmanager
+        ;;
+    esac
+    done
     repair_permissions
     remove_unneeded_packages
     # Completion functions
