@@ -67,16 +67,17 @@ OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "O
        xcursor_to_dot "Turn the X mouse pointer into 1x1 pixel black dot, hiding it completely" off \
        disable_modemmanager "Disable the modemmamager service" off 2>&1 > /dev/tty)
 if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
- clear
- echo
- echo "No options have been selected or user has exited the installer."
- echo
-   else
- clear
- echo  "$options"
- echo
+   clear
+    echo
+    echo "No options have been selected or user has exited the installer."
+    echo
+    exit
+else
+   clear
+   echo "$OPTIONS"
+   echo
+   exit
 fi
-exit
 }
 
 
