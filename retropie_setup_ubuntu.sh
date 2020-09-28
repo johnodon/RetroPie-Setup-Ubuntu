@@ -14,18 +14,9 @@ SCRIPT_FILE="$(basename $SCRIPT_PATH)"
 LOG_FILE="$SCRIPT_DIR/$(basename $0 .sh)-$(date +"%Y%m%d_%H%M%S").log"
 OPTIONAL_SCRIPT_DIR="$SCRIPT_DIR/optional_scripts"
 
-# Make sure the user is running the script via sudo
-if [ -z "$SUDO_USER" ]; then
-    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
-    exit 1
-fi
-# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
-if [[ "$SUDO_USER" == root ]]; then
-    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
-    exit 1
-fi
 
 # Dialog screen to present installation and configuration options
+function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
 OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
     --checklist "Use SPACE to select/deselct options and OK when finished."  30 100 30 \
@@ -59,6 +50,7 @@ if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it mea
  echo
 fi
 exit
+}
 
 # Global setting for APT recommended packages - leave blank for now.
 # It's a little more bloated, but we can't get a clean boot without it.
@@ -530,13 +522,28 @@ function complete_install() {
 }
 
 
+# Make sure the user is running the script via sudo
+function check_perms() {
+if [ -z "$SUDO_USER" ]; then
+    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
+    exit 1
+fi
+# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
+if [[ "$SUDO_USER" == root ]]; then
+    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
+    exit 1
+fi
+}
+
 #--------------------------------------------------------------------------------
 #| INSTALLATION SCRIPT 
 #--------------------------------------------------------------------------------
 # If no arguments are provided
 if [[ -z "$1" ]]; then
-
+    # Core functions
+    check_perms
     enable_logging
+    select_options
     install_retropie_dependencies
     install_retropie
     disable_sudo_password
@@ -547,14 +554,15 @@ if [[ -z "$1" ]]; then
     hide_openbox_windows
     autostart_openbox_apps
     install_extra_tools
-    fix_quirks
-    $options
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
+    fix_quirks
+    # Optional functions
+    $options
+    # Cleanup functions
     repair_permissions
     remove_unneeded_packages
     complete_install
-
 # If function names are provided as arguments, just run those functions
 # (then restore perms and clean up)
 else
