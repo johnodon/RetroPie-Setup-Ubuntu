@@ -14,6 +14,11 @@ SCRIPT_FILE="$(basename $SCRIPT_PATH)"
 LOG_FILE="$SCRIPT_DIR/$(basename $0 .sh)-$(date +"%Y%m%d_%H%M%S").log"
 OPTIONAL_SCRIPT_DIR="$SCRIPT_DIR/optional_scripts"
 
+# Global setting for APT recommended packages - leave blank for now.
+# It's a little more bloated, but we can't get a clean boot without it.
+#APT_RECOMMENDS="–no-install-recommends"
+APT_RECOMMENDS=
+
 
 ################################################# START CORE FUNCTIONS #################################################
 
