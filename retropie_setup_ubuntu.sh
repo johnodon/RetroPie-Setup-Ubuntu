@@ -15,6 +15,33 @@ LOG_FILE="$SCRIPT_DIR/$(basename $0 .sh)-$(date +"%Y%m%d_%H%M%S").log"
 OPTIONAL_SCRIPT_DIR="$SCRIPT_DIR/optional_scripts"
 
 
+################################################# START CORE FUNCTIONS #################################################
+
+# Make sure the user is running the script via sudo
+function check_perms() {
+if [ -z "$SUDO_USER" ]; then
+    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
+    exit 1
+fi
+# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
+if [[ "$SUDO_USER" == root ]]; then
+    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
+    exit 1
+fi
+}
+
+
+# Output to both console and log file
+function enable_logging() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Saving console output to '$LOG_FILE'"
+    echo "--------------------------------------------------------------------------------"
+    touch $LOG_FILE
+    exec > >(tee $LOG_FILE) 2>&1
+    sleep 2
+}
+
+
 # Dialog screen to present installation and configuration options
 function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
@@ -42,7 +69,7 @@ OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "O
 if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
  clear
  echo
- echo "No options have been selected or script was canceled."
+ echo "No options have been selected or user has exited the installer."
  echo
    else
  clear
@@ -52,40 +79,6 @@ fi
 exit
 }
 
-# Global setting for APT recommended packages - leave blank for now.
-# It's a little more bloated, but we can't get a clean boot without it.
-#APT_RECOMMENDS="–no-install-recommends"
-APT_RECOMMENDS=
-
-# Minimal depedencies to install RetroPie on Ubuntu
-RETROPIE_DEPENDS=(
-    xorg openbox pulseaudio alsa-utils menu libglib2.0-bin python-xdg
-    at-spi2-core libglib2.0-bin dbus-x11 git dialog unzip xmlstarlet joystick
-    triggerhappy
-)
-
-# Helpful packages to improve usability
-#--------------------------------------------------------------------------------
-# openssh-server      Remote administration, copy/paste
-# xdg-utils           Eliminates 'xdg-screensaver not found' error
-# unclutter           Hides mouse cursor when not being used
-# inxi                Queries video driver information
-#--------------------------------------------------------------------------------
-EXTRA_TOOLS=(
-    openssh-server xdg-utils unclutter inxi
-)
-
-
-# Output to both console and log file
-function enable_logging() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Saving console output to '$LOG_FILE'"
-    echo "--------------------------------------------------------------------------------"
-    touch $LOG_FILE
-    exec > >(tee $LOG_FILE) 2>&1
-    sleep 2
-}
-
 
 # Install RetroPie dependencies
 function install_retropie_dependencies() {
@@ -93,7 +86,8 @@ function install_retropie_dependencies() {
     echo "| Updating OS packages and installing RetroPie dependencies"
     echo "--------------------------------------------------------------------------------"
     apt-get update && apt-get -y upgrade
-    apt-get install -y $APT_RECOMMENDS ${RETROPIE_DEPENDS[@]}
+    apt-get install -y xorg openbox pulseaudio alsa-utils menu libglib2.0-bin python-xdg /
+    at-spi2-core libglib2.0-bin dbus-x11 git dialog unzip xmlstarlet joysticktriggerhappy
     echo -e "FINISHED install_retropie_dependencies \n\n"
     sleep 2
 }
@@ -124,31 +118,6 @@ function install_retropie() {
 }
 
 
-# Install RetroArch shaders from official repository
-function install_retroarch_shaders() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Removing the RPi shaders installed by RetroPie-Setup"
-    echo "| and replacing with RetroArch shaders (merge of common & GLSL) from Libretro"
-    echo "--------------------------------------------------------------------------------"
-    # Cleanup pi shaders installed by RetroPie-Setup
-    rm -rf /opt/retropie/configs/all/retroarch/shaders
-    mkdir -p /opt/retropie/configs/all/retroarch/shaders
-    # Install common shaders from Libretro repository
-    git clone --depth=1 https://github.com/libretro/common-shaders.git /tmp/common-shaders
-    cp -r /tmp/common-shaders/* /opt/retropie/configs/all/retroarch/shaders/
-    rm -rf /tmp/common-shaders
-    # Install GLSL shaders from Libretro repository
-    git clone --depth=1 https://github.com/libretro/glsl-shaders.git /tmp/glsl-shaders
-    cp -r /tmp/glsl-shaders/* /opt/retropie/configs/all/retroarch/shaders/
-    rm -rf /tmp/glsl-shaders
-    # Remove git repository from shader dir
-    rm -rf /opt/retropie/configs/all/retroarch/shaders/.git
-    chown -R $USER:$USER /opt/retropie/configs
-    echo -e "FINISHED install_retroarch_shaders \n\n"
-    sleep 2
-}
-
-
 # Create file in sudoers.d directory and disable password prompt
 function disable_sudo_password() {
     echo "--------------------------------------------------------------------------------"
@@ -157,68 +126,6 @@ function disable_sudo_password() {
     echo "$USER ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/$USER-no-password-prompt
     chmod 0440 /etc/sudoers.d/$USER-no-password-prompt
     echo -e "FINISHED disable_sudo_password \n\n"
-    sleep 2
-}
-
-
-# Install latest Intel video drivers
-function install_latest_intel_drivers() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Installing the latest Intel video drivers from 'ppa:ubuntu-x-swat/updates'"
-    echo "| This may throw errors on a new release if this PPA does not supportit yet (OK)."
-    echo "--------------------------------------------------------------------------------"
-    add-apt-repository -y ppa:ubuntu-x-swat/updates
-    apt-get update && apt-get -y upgrade
-    echo -e "FINISHED install_latest_intel_drivers \n\n"
-    sleep 2
-}
-
-
-# Install the latest Nvidia video drivers
-function install_latest_nvidia_drivers() {
-    echo "--------------------------------------------------------------------------------"
-    echo "- Installing the latest Nvidia video drivers"
-    echo "--------------------------------------------------------------------------------"
-    apt-get install -y $APT_RECOMMENDS ubuntu-drivers-common
-    add-apt-repository -y ppa:graphics-drivers/ppa
-    ubuntu-drivers autoinstall
-    echo -e "FINISHED install_latest_nvidia_drivers \n\n"
-    sleep 2
-}
-
-
-# Install MESA Vulkan drivers
-function install_latest_vulkan_drivers() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Installing Vulkan video drivers"
-    echo "--------------------------------------------------------------------------------"
-    apt-get install -y $APT_RECOMMENDS mesa-vulkan-drivers
-    echo -e "FINISHED install_vulkan \n\n"
-    sleep 2
-}
-
-
-# Enable Plymouth Splash Screen
-function enable_plymouth_theme() {
-    if [[ -z "$1" ]]; then
-        echo "--------------------------------------------------------------------------------"
-        echo "| Skipping Plymouth boot splash because no theme name was provided"
-        echo "--------------------------------------------------------------------------------"
-        echo -e "Skipped\n\n"
-        return 255
-    fi
-    PLYMOUTH_THEME=$1
-    echo "--------------------------------------------------------------------------------"
-    echo "| Installing Plymouth boot splash and enabling theme '$PLYMOUTH_THEME'"
-    echo "--------------------------------------------------------------------------------"
-    apt-get install -y $APT_RECOMMENDS plymouth plymouth-themes plymouth-x11
-    rm -rf /tmp/plymouth-themes
-    git clone --depth=1 https://github.com/HerbFargus/plymouth-themes.git /tmp/plymouth-themes
-    mv /tmp/plymouth-themes/* /usr/share/plymouth/themes/
-    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/$PLYMOUTH_THEME/$PLYMOUTH_THEME.plymouth 10
-    update-alternatives --set default.plymouth /usr/share/plymouth/themes/$PLYMOUTH_THEME/$PLYMOUTH_THEME.plymouth
-    update-initramfs -u
-    echo -e "FINISHED enable_plymouth_theme \n\n"
     sleep 2
 }
 
@@ -363,31 +270,6 @@ EOF
 }
 
 
-# Install and configure extra tools
-function install_extra_tools() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Installing the following tools to improve usability:"
-    echo "| ${EXTRA_TOOLS[@]}"
-    echo "--------------------------------------------------------------------------------"
-    apt-get update
-    apt-get install -y $APT_RECOMMENDS ${EXTRA_TOOLS[@]}
-
-    # Configure 'inxi' if it was installed
-    if [[ -x "$(command -v inxi)" ]]; then
-        echo "--------------------------------------------------------------------------------"
-        echo "| Enabling updates on the 'inxi' package", which is 
-        echo "| used for checking hardware and system information"
-        echo "| Command 'inxi -G' is useful for querying video card driver versions"
-        echo "--------------------------------------------------------------------------------"
-        sed -i 's/B_ALLOW_UPDATE=false/B_ALLOW_UPDATE=true/g' /etc/inxi.conf
-        inxi -U
-    fi
-    
-    echo -e "FINISHED install_extra_tools \n\n"
-    sleep 2
-}
-
-
 # Fix quirks
 function fix_quirks() {
     echo "--------------------------------------------------------------------------------"
@@ -475,7 +357,133 @@ function set_resolution_grub() {
     echo -e "FINISHED set_resolution_grub \n\n"
 }
 
+################################################## END CORE FUNCTIONS ##################################################
 
+
+############################################### START OPTIONAL FUNCTIONS ###############################################
+
+# Install latest Intel video drivers
+function install_latest_intel_drivers() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Installing the latest Intel video drivers from 'ppa:ubuntu-x-swat/updates'"
+    echo "| This may throw errors on a new release if this PPA does not supportit yet (OK)."
+    echo "--------------------------------------------------------------------------------"
+    add-apt-repository -y ppa:ubuntu-x-swat/updates
+    apt-get update && apt-get -y upgrade
+    echo -e "FINISHED install_latest_intel_drivers \n\n"
+    sleep 2
+}
+
+
+# Install the latest Nvidia video drivers
+function install_latest_nvidia_drivers() {
+    echo "--------------------------------------------------------------------------------"
+    echo "- Installing the latest Nvidia video drivers"
+    echo "--------------------------------------------------------------------------------"
+    apt-get install -y $APT_RECOMMENDS ubuntu-drivers-common
+    add-apt-repository -y ppa:graphics-drivers/ppa
+    ubuntu-drivers autoinstall
+    echo -e "FINISHED install_latest_nvidia_drivers \n\n"
+    sleep 2
+}
+
+
+# Install MESA Vulkan drivers
+function install_latest_vulkan_drivers() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Installing Vulkan video drivers"
+    echo "--------------------------------------------------------------------------------"
+    apt-get install -y $APT_RECOMMENDS mesa-vulkan-drivers
+    echo -e "FINISHED install_vulkan \n\n"
+    sleep 2
+}
+
+
+# Enable Plymouth Splash Screen
+function enable_plymouth_theme() {
+    if [[ -z "$1" ]]; then
+        echo "--------------------------------------------------------------------------------"
+        echo "| Skipping Plymouth boot splash because no theme name was provided"
+        echo "--------------------------------------------------------------------------------"
+        echo -e "Skipped\n\n"
+        return 255
+    fi
+    PLYMOUTH_THEME=$1
+    echo "--------------------------------------------------------------------------------"
+    echo "| Installing Plymouth boot splash and enabling theme '$PLYMOUTH_THEME'"
+    echo "--------------------------------------------------------------------------------"
+    apt-get install -y $APT_RECOMMENDS plymouth plymouth-themes plymouth-x11
+    rm -rf /tmp/plymouth-themes
+    git clone --depth=1 https://github.com/HerbFargus/plymouth-themes.git /tmp/plymouth-themes
+    mv /tmp/plymouth-themes/* /usr/share/plymouth/themes/
+    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/$PLYMOUTH_THEME/$PLYMOUTH_THEME.plymouth 10
+    update-alternatives --set default.plymouth /usr/share/plymouth/themes/$PLYMOUTH_THEME/$PLYMOUTH_THEME.plymouth
+    update-initramfs -u
+    echo -e "FINISHED enable_plymouth_theme \n\n"
+    sleep 2
+}
+
+
+# Install RetroArch shaders from official repository
+function install_retroarch_shaders() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Removing the RPi shaders installed by RetroPie-Setup"
+    echo "| and replacing with RetroArch shaders (merge of common & GLSL) from Libretro"
+    echo "--------------------------------------------------------------------------------"
+    # Cleanup pi shaders installed by RetroPie-Setup
+    rm -rf /opt/retropie/configs/all/retroarch/shaders
+    mkdir -p /opt/retropie/configs/all/retroarch/shaders
+    # Install common shaders from Libretro repository
+    git clone --depth=1 https://github.com/libretro/common-shaders.git /tmp/common-shaders
+    cp -r /tmp/common-shaders/* /opt/retropie/configs/all/retroarch/shaders/
+    rm -rf /tmp/common-shaders
+    # Install GLSL shaders from Libretro repository
+    git clone --depth=1 https://github.com/libretro/glsl-shaders.git /tmp/glsl-shaders
+    cp -r /tmp/glsl-shaders/* /opt/retropie/configs/all/retroarch/shaders/
+    rm -rf /tmp/glsl-shaders
+    # Remove git repository from shader dir
+    rm -rf /opt/retropie/configs/all/retroarch/shaders/.git
+    chown -R $USER:$USER /opt/retropie/configs
+    echo -e "FINISHED install_retroarch_shaders \n\n"
+    sleep 2
+}
+
+
+# Install and configure extra tools
+#--------------------------------------------------------------------------------
+# openssh-server      Remote administration, copy/paste
+# xdg-utils           Eliminates 'xdg-screensaver not found' error
+# unclutter           Hides mouse cursor when not being used
+# inxi                Queries video driver information
+#--------------------------------------------------------------------------------
+function install_extra_tools() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Installing the following tools to improve usability:"
+    echo "| ${EXTRA_TOOLS[@]}"
+    echo "--------------------------------------------------------------------------------"
+    apt-get update
+    apt-get install -y openssh-server xdg-utils unclutter inxi
+
+    # Configure 'inxi' if it was installed
+    if [[ -x "$(command -v inxi)" ]]; then
+        echo "--------------------------------------------------------------------------------"
+        echo "| Enabling updates on the 'inxi' package", which is 
+        echo "| used for checking hardware and system information"
+        echo "| Command 'inxi -G' is useful for querying video card driver versions"
+        echo "--------------------------------------------------------------------------------"
+        sed -i 's/B_ALLOW_UPDATE=false/B_ALLOW_UPDATE=true/g' /etc/inxi.conf
+        inxi -U
+    fi
+    
+    echo -e "FINISHED install_extra_tools \n\n"
+    sleep 2
+}
+
+################################################ END OPTIONAL FUNCTIONS ###############################################
+
+
+
+############################################### START CLEAN-UP FUNCTIONS ##############################################
 
 # Repair any permissions that might have been incorrectly set
 function repair_permissions() {
@@ -500,6 +508,12 @@ function remove_unneeded_packages() {
     sleep 2
 }
 
+################################################ END CLEAN-UP FUNCTIONS ###############################################
+
+
+
+############################################## START COMPLETION FUNCTIONS #############################################
+
 # Prompt user for reboot
 function prompt_for_reboot() {
     read -p "Reboot the system now? (y/n) " -n 1 -r
@@ -521,19 +535,9 @@ function complete_install() {
     prompt_for_reboot
 }
 
+############################################### END COMPLETION FUNCTIONS ##############################################
 
-# Make sure the user is running the script via sudo
-function check_perms() {
-if [ -z "$SUDO_USER" ]; then
-    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
-    exit 1
-fi
-# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
-if [[ "$SUDO_USER" == root ]]; then
-    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
-    exit 1
-fi
-}
+
 
 #--------------------------------------------------------------------------------
 #| INSTALLATION SCRIPT 
@@ -553,15 +557,15 @@ if [[ -z "$1" ]]; then
     enable_autostart_xwindows
     hide_openbox_windows
     autostart_openbox_apps
-    install_extra_tools
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
     fix_quirks
     # Optional functions
     $options
-    # Cleanup functions
+    # Clean-up functions
     repair_permissions
     remove_unneeded_packages
+    # Completion functions
     complete_install
 # If function names are provided as arguments, just run those functions
 # (then restore perms and clean up)
