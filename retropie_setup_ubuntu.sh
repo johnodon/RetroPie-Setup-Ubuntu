@@ -31,7 +31,7 @@ fi
 }
 
 
-# Dialog screen to present installation and configuration options
+# Menu to present installation and configuration options
 function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
 OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
