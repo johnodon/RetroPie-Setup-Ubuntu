@@ -52,7 +52,6 @@ OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "O
        force_apt_ipv4 "Forces APT to use IPV4" off \
        add_bezelproject "Install the Bezel Project into the RetroPie menu" off \
        remove_snap "Remove the SNAP daemon" off \
-       suppress_xsession_errors "Prevent errors from being written to ~/.xsession-errors" off \
        xcursor_to_dot "Turn the X mouse pointer into 1x1 pixel black dot, hiding it completely" off \
        disable_modemmanager "Disable the modemmamager service" off 2>&1 > /dev/tty)
 if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
