@@ -63,7 +63,7 @@ If you are familiar with the use of [preseed](https://help.ubuntu.com/lts/instal
 
 - Run the installer script
 
-  `sudo bash ./RetroPie-Setup-Ubuntu/retropie_setup_ubuntu.sh`
+  `chmod +x RetroPie-Setup-Ubuntu/retropie_setup_ubuntu.sh && sudo bash ./RetroPie-Setup-Ubuntu/retropie_setup_ubuntu.sh`
 
   Optionally, you can override the Git repository (-r) and branch (-b) used by the bootstrap script. This is helpful if you want to bootstrap from your own fork or a different branch. The available options can be passed as follows:
 
