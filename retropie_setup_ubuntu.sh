@@ -27,12 +27,13 @@ fi
 
 # Dialog screen to present installation and configuration options
 resize -s 40 90 > /dev/null #Change window size.
-options=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
+OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
     --checklist "Use SPACE to select/deselct options and OK when finished."  30 100 30 \
        install_latest_nvidia_drivers "Install latest Nvidia GPU drivers" off \
        install_latest_intel_drivers "Install latest Intel GPU drivers" off \
-       install_vulkan "Install latest Vulkan (AMD) GPU drivers" off \
+       install_latest_vulkan_drivers "Install latest Vulkan (AMD) GPU drivers" off \
        install_retroarch_shaders "Update Retroarch shaders from git" off \
+       enable_plymouth_theme "Install and enable the Pacman plymouth theme" off \
        disable_apparmor "Disable the apparmor service" off \
        disable_ipv6 "Disable IPv6 via GRUB" off \
        disable_avahi "Disable the avahi-daemon service" off \
@@ -47,7 +48,7 @@ options=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "O
        suppress_xsession_errors "Prevent errors from being written to ~/.xsession-errors" off \
        xcursor_to_dot "Turn the X mouse pointer into 1x1 pixel black dot, hiding it completely" off \
        disable_modemmanager "Disable the modemmamager service" off 2>&1 > /dev/tty)
-if [ -z $options ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
+if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
  clear
  echo
  echo "No options have been selected or script was canceled."
@@ -58,14 +59,6 @@ if [ -z $options ]; then #Check if the variable is empty. If it is empty, it mea
  echo
 fi
 exit
-
-
-
-
-
-
-
-
 
 # Global setting for APT recommended packages - leave blank for now.
 # It's a little more bloated, but we can't get a clean boot without it.
@@ -203,7 +196,7 @@ function install_latest_nvidia_drivers() {
 
 
 # Install MESA Vulkan drivers
-function install_vulkan() {
+function install_latest_vulkan_drivers() {
     echo "--------------------------------------------------------------------------------"
     echo "| Installing Vulkan video drivers"
     echo "--------------------------------------------------------------------------------"
@@ -403,7 +396,7 @@ function install_extra_tools() {
 }
 
 
-# Install and configure extra tools
+# Fix quirks
 function fix_quirks() {
     echo "--------------------------------------------------------------------------------"
     echo "| Fixing any known quirks"
@@ -491,36 +484,6 @@ function set_resolution_grub() {
 }
 
 
-# Run any optional scripts that the user has provided
-function run_optional_scripts() {
-    SCRIPT_PATH=$1
-    # If a specific file is provided, just run that
-    if [[ -f $SCRIPT_PATH ]]; then
-        SCRIPT_FILE_PATH=$SCRIPT_PATH
-        echo "--------------------------------------------------------------------------------"
-        echo "| Running optional script at $SCRIPT_FILE_PATH"
-        echo "--------------------------------------------------------------------------------"
-        echo -e "\n"
-        source "$SCRIPT_FILE_PATH"
-        sleep 2
-    # Otherwise, run all scripts in the provided directory
-    else
-        echo "--------------------------------------------------------------------------------"
-        echo "| Running any optional scripts found in $SCRIPT_PATH"
-        echo "--------------------------------------------------------------------------------"
-        ls "$SCRIPT_PATH" | sort -n | while read SCRIPT_FILE; do
-            SCRIPT_FILE_PATH="$SCRIPT_PATH/$SCRIPT_FILE"
-            if [[ -f $SCRIPT_FILE_PATH ]] && [[ $SCRIPT_FILE_PATH != *README* ]]; then
-                echo -e "\n"
-                source "$SCRIPT_FILE_PATH"
-                sleep 2
-            fi
-        done
-    fi
-    echo -e "\n\n"
-    echo -e "FINISHED run_optional_scripts \n\n"
-}
-
 
 # Repair any permissions that might have been incorrectly set
 function repair_permissions() {
@@ -566,16 +529,6 @@ function complete_install() {
     prompt_for_reboot
 }
 
-# Make sure the user is running the script via sudo
-if [ -z "$SUDO_USER" ]; then
-    echo "This script requires sudo privileges. Please run with: sudo $0"
-    exit 1
-fi
-# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
-if [[ "$SUDO_USER" == root ]]; then
-    echo "This script cannot be run by the root user.  Please run as normal user using sudo."
-    exit 1
-fi
 
 #--------------------------------------------------------------------------------
 #| INSTALLATION SCRIPT 
@@ -583,35 +536,21 @@ fi
 # If no arguments are provided
 if [[ -z "$1" ]]; then
 
-    #-- Log this script's output
     enable_logging
-    run_optional_scripts "$OPTIONAL_SCRIPT_DIR/pre_install"
-    #-- Basic RetroPie install 
     install_retropie_dependencies
     install_retropie
-    install_retroarch_shaders
     disable_sudo_password
-    #-- Common video drivers
-    install_latest_intel_drivers
-    install_latest_nvidia_drivers
-    install_vulkan
-    #-- Hide text and boot directly into EmulationStation
-    enable_plymouth_theme "retropie-pacman"       # See https://github.com/HerbFargus/plymouth-themes.git for other theme names
     hide_boot_messages
     enable_runlevel_multiuser
     enable_autologin_tty
     enable_autostart_xwindows
     hide_openbox_windows
     autostart_openbox_apps
-    #-- Additional customizations
     install_extra_tools
     fix_quirks
-    #-- OPTIONAL STEPS (comment/change as needed)
-    #   These are helpful for improving 4k performance and user experience
+    $options
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
-    run_optional_scripts "$OPTIONAL_SCRIPT_DIR/post_install"
-    #-- Final cleanup
     repair_permissions
     remove_unneeded_packages
     complete_install
