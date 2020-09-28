@@ -34,7 +34,7 @@ fi
 # Menu to present installation and configuration options
 function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
-OPTIONS=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
+OPTIONS=$(dialog --separate-output --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
     --checklist "Use SPACE to select/deselct options and OK when finished."  30 100 30 \
        install_latest_nvidia_drivers "Install latest Nvidia GPU drivers" off \
        install_latest_intel_drivers "Install latest Intel GPU drivers" off \
@@ -62,9 +62,6 @@ if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it mea
     exit
 else
    clear
-   echo "$OPTIONS"
-   echo
-   exit
 fi
 }
 
