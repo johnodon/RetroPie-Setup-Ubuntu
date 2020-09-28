@@ -155,6 +155,31 @@ function hide_boot_messages() {
 }
 
 
+# Suppress errors being written to $HOME/.xsession-errors  
+# Also creates an init task that deletes the ~/.xsession-errors file at # each startup
+function suppress_xsession_errors () {
+echo "--------------------------------------------------------------------------------"
+echo "| Suppressing errors in $HOME/.xsession-errors"
+echo "--------------------------------------------------------------------------------"
+# Create ~/.config/autostart folder and fix perms
+mkdir -p $USER_HOME/.config/autostart
+chown -R $USER:$USER $USER_HOME/.config/autostart
+
+# Rename .desktop files to .desktop.skip
+find /etc/xdg/autostart/ -depth -name "*.desktop" -exec sh -c 'mv "$1" "${1%.abc}.skip"' _ {} \;
+
+# Create init job to delete ~/.xsession-errors at each login
+cat << EOF >> /etc/init.d/xsession-errors
+#!/bin/sh
+rm $USER_HOME/.xsession-errors >/dev/null 2>&1
+EOF
+chmod +x /etc/init.d/xsession-errors
+ln -s /etc/init.d/xsession-errors /etc/rc2.d/S15xsession-errors
+echo -e "FINISHED suppress_xsession_errors \n\n"
+sleep 2
+}
+
+
 # Change the default runlevel to multi-user
 # This disables GDM from loading at boot (new for 20.04)
 function enable_runlevel_multiuser () {
@@ -552,6 +577,7 @@ if [[ -z "$1" ]]; then
     install_retropie
     disable_sudo_password
     hide_boot_messages
+    suppress_xsession_errors
     enable_runlevel_multiuser
     enable_autologin_tty
     enable_autostart_xwindows
