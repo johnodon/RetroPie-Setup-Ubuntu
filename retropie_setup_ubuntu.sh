@@ -112,7 +112,7 @@ function install_retropie() {
     $USER_HOME/RetroPie-Setup/retropie_packages.sh splashscreen default
     $USER_HOME/RetroPie-Setup/retropie_packages.sh splashscreen enable
     $USER_HOME/RetroPie-Setup/retropie_packages.sh xpad
-    
+
     chown -R $USER:$USER $USER_HOME/RetroPie-Setup
     echo -e "FINISHED install_retropie \n\n"
     sleep 2
@@ -286,7 +286,7 @@ function fix_quirks() {
     echo 'Defaults	env_keep +="XDG_RUNTIME_DIR"' | sudo tee /etc/sudoers.d/keep-xdg-environment-variable
     chmod 0440 /etc/sudoers.d/keep-xdg-environment-variable
     echo -e "\n"
-    
+
     # Screen blanking
     echo "--------------------------------------------------------------------------------"
     echo "| Disable screen blanking (only happens outside of EmulationStation)"
@@ -296,11 +296,11 @@ function fix_quirks() {
     echo -e "\n"
 
     echo -e "FINISHED fix_quirks \n\n"
-    sleep 2    
+    sleep 2
 }
 
 
-# Add the ability to change screen resolution in autostart.sh 
+# Add the ability to change screen resolution in autostart.sh
 function set_resolution_xwindows() {
     echo "--------------------------------------------------------------------------------"
     echo "| Adding the ability to override the default display resolution"
@@ -313,7 +313,7 @@ function set_resolution_xwindows() {
 
 # RPSU_START set_resolution_xwindows
 # Update the next line to customize the display resolution
-# If will fall back to the display's preferred resolution, if the custom value is invalid 
+# If will fall back to the display's preferred resolution, if the custom value is invalid
 PREFERRED_RESOLUTION=1920x1080
 if [[ ! -z \$PREFERRED_RESOLUTION ]]; then
     current_resolution=\$(xrandr --display :0 | awk 'FNR==1{split(\$0,a,", "); print a[2]}' | awk '{gsub("current ","");gsub(" x ", "x");print}')
@@ -468,14 +468,14 @@ function install_extra_tools() {
     # Configure 'inxi' if it was installed
     if [[ -x "$(command -v inxi)" ]]; then
         echo "--------------------------------------------------------------------------------"
-        echo "| Enabling updates on the 'inxi' package", which is 
+        echo "| Enabling updates on the 'inxi' package", which is
         echo "| used for checking hardware and system information"
         echo "| Command 'inxi -G' is useful for querying video card driver versions"
         echo "--------------------------------------------------------------------------------"
         sed -i 's/B_ALLOW_UPDATE=false/B_ALLOW_UPDATE=true/g' /etc/inxi.conf
         inxi -U
     fi
-    
+
     echo -e "FINISHED install_extra_tools \n\n"
     sleep 2
 }
@@ -541,7 +541,7 @@ function complete_install() {
 
 
 #--------------------------------------------------------------------------------
-#| INSTALLATION SCRIPT 
+#| INSTALLATION SCRIPT
 #--------------------------------------------------------------------------------
 # If no arguments are provided
 if [[ -z "$1" ]]; then
@@ -562,7 +562,7 @@ if [[ -z "$1" ]]; then
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
     fix_quirks
     # Optional functions
-    $options
+    $OPTIONS
     # Clean-up functions
     repair_permissions
     remove_unneeded_packages
