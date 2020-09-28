@@ -31,17 +31,6 @@ fi
 }
 
 
-# Output to both console and log file
-function enable_logging() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Saving console output to '$LOG_FILE'"
-    echo "--------------------------------------------------------------------------------"
-    touch $LOG_FILE
-    exec > >(tee $LOG_FILE) 2>&1
-    sleep 2
-}
-
-
 # Dialog screen to present installation and configuration options
 function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
@@ -78,6 +67,17 @@ else
    echo
    exit
 fi
+}
+
+
+# Output to both console and log file
+function enable_logging() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Saving console output to '$LOG_FILE'"
+    echo "--------------------------------------------------------------------------------"
+    touch $LOG_FILE
+    exec > >(tee $LOG_FILE) 2>&1
+    sleep 2
 }
 
 
@@ -547,8 +547,8 @@ function complete_install() {
 if [[ -z "$1" ]]; then
     # Core functions
     check_perms
-    enable_logging
     select_options
+    enable_logging
     install_retropie_dependencies
     install_retropie
     disable_sudo_password
