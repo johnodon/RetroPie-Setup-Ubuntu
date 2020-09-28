@@ -54,14 +54,20 @@ if [ "$response" == "0" ] ; then
         exit
     elif [ "$INSTALL" == "full_install" ] ; then
         clear
-        echo "choose_retropie_install"
-        echo "choose_optional_packages_install"
+        preflight
+        retropie_installation
+        optional_packages_installation
+        complete_installation
     elif [ "$INSTALL" == "retropie_only" ] ; then
         clear
-        echo "choose_retropie_install"
+        preflight
+        retropie_installation
+        complete_installation
     elif [ "$INSTALL" == "optional_packages_only" ] ; then
         clear
-        echo "choose_optional_packages_install"
+        preflight
+        optional_packages_installation
+        complete_installation
     fi
     exit
 elif [ "$response" == "1" ] ; then
@@ -101,9 +107,8 @@ if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it mea
     echo
     echo "No options have been selected or user has exited the installer."
     echo
-    exit
 else
-   clear
+    clear
 fi
 }
 
@@ -607,10 +612,13 @@ function complete_install() {
 #--------------------------------------------------------------------------------
 # If no arguments are provided
 if [[ -z "$1" ]]; then
-### Core functions ###
+### Pre-Flight functions ###
+    function preflight() {
     check_perms
-    select_options
     enable_logging
+    }
+### Retropie Instllation ###
+    function retropie_installation() {
     install_retropie_dependencies
     install_retropie
     disable_sudo_password
@@ -624,7 +632,10 @@ if [[ -z "$1" ]]; then
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
     fix_quirks
-### Optional functions ###
+    }
+### Optional Packages Installation ###
+    function optional_packages_installation() {
+    select_options
     for SELECTION in $OPTIONS; do
     case $SELECTION in
     install_latest_nvidia_drivers)
@@ -683,10 +694,13 @@ if [[ -z "$1" ]]; then
         ;;
     esac
     done
+    }
+    # Completion functions
+    function complete_installation() {
     repair_permissions
     remove_unneeded_packages
-    # Completion functions
     complete_install
+    }
 # If function names are provided as arguments, just run those functions
 # (then restore perms and clean up)
 else
