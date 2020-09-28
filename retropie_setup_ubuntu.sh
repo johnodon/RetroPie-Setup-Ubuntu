@@ -603,7 +603,7 @@ if [[ -z "$1" ]]; then
         install_retroarch_shaders
         ;;
     enable_plymouth_theme)
-        enable_plymouth_theme
+        enable_plymouth_theme "retropie-pacman"
         ;;
     disable_apparmor)
         disable_apparmor
