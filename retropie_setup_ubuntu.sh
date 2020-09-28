@@ -36,6 +36,43 @@ fi
 }
 
 
+# Menu to present full or optional package install
+function select_install() {
+resize -s 40 90 > /dev/null #Change window size.
+INSTALL=$(dialog --no-tags --clear --backtitle "Installer Options..." --title "What would you like to install?" \
+    --radiolist "Select your install and OK when finished."  15 75 15 \
+       full_install "Full Retropie install with option to install additional packages" off \
+       retropie_only "Retropie only installation" off \
+       optional_packages_only "Install optional packages only" off 2>&1 > /dev/tty)
+response=$?
+if [ "$response" == "0" ] ; then
+    if [ -z $INSTALL ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
+        clear
+        echo
+        echo "No options have been selected."
+        echo
+        exit
+    elif [ "$INSTALL" == "full_install" ] ; then
+        clear
+        echo "choose_retropie_install"
+        echo "choose_optional_packages_install"
+    elif [ "$INSTALL" == "retropie_only" ] ; then
+        clear
+        echo "choose_retropie_install"
+    elif [ "$INSTALL" == "optional_packages_only" ] ; then
+        clear
+        echo "choose_optional_packages_install"
+    fi
+    exit
+elif [ "$response" == "1" ] ; then
+    clear
+    echo "Installation cancelled by user."
+    exit
+fi
+}
+
+
+
 # Menu to present installation and configuration options
 function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
