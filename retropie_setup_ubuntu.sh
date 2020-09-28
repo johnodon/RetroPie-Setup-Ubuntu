@@ -88,8 +88,7 @@ function install_retropie_dependencies() {
     echo "| Updating OS packages and installing RetroPie dependencies"
     echo "--------------------------------------------------------------------------------"
     apt-get update && apt-get -y upgrade
-    apt-get install -y xorg openbox pulseaudio alsa-utils menu libglib2.0-bin python-xdg /
-    at-spi2-core libglib2.0-bin dbus-x11 git dialog unzip xmlstarlet joysticktriggerhappy
+    apt-get install -y xorg openbox pulseaudio alsa-utils menu libglib2.0-bin python-xdg at-spi2-core libglib2.0-bin dbus-x11 git dialog unzip xmlstarlet joysticktriggerhappy
     echo -e "FINISHED install_retropie_dependencies \n\n"
     sleep 2
 }
