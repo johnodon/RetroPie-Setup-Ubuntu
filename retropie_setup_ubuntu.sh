@@ -22,20 +22,6 @@ APT_RECOMMENDS=
 
 ################################################# START CORE FUNCTIONS #################################################
 
-# Make sure the user is running the script via sudo
-function check_perms() {
-if [ -z "$SUDO_USER" ]; then
-    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
-    exit 1
-fi
-# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
-if [[ "$SUDO_USER" == root ]]; then
-    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
-    exit 1
-fi
-}
-
-
 # Menu to present full or optional package install
 function select_install() {
 resize -s 40 90 > /dev/null #Change window size.
@@ -109,6 +95,23 @@ if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it mea
     echo
 else
     clear
+fi
+}
+
+
+# Make sure the user is running the script via sudo
+echo "--------------------------------------------------------------------------------"
+echo "| Checking permissions..."
+echo "--------------------------------------------------------------------------------"
+function check_perms() {
+if [ -z "$SUDO_USER" ]; then
+    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
+    exit 1
+fi
+# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
+if [[ "$SUDO_USER" == root ]]; then
+    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
+    exit 1
 fi
 }
 
@@ -612,8 +615,8 @@ function complete_install() {
 #--------------------------------------------------------------------------------
 ### Pre-Flight functions ###
 function preflight() {
-    echo "check_perms"
-    echo "enable_logging"
+    check_perms
+    enable_logging
 }
 ### Retropie Instllation ###
 function retropie_installation() {
