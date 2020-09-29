@@ -628,7 +628,7 @@ sleep 2
 ###############################################################################
 function disable_kernel_mitigations() {
 echo "--------------------------------------------------------------------------------"
-echo "| Disabling Spectre, Meltdown, etc. kernel mitigations"
+echo "" Disabling Spectre, Meltdown, etc. kernel mitigations"
 echo "--------------------------------------------------------------------------------"
 cp /etc/default/grub /etc/default/grub.backup-$(date +"%Y%m%d_%H%M%S")
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"/&mitigations=off /' /etc/default/grub
