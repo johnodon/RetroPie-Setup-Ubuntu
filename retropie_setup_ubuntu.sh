@@ -895,9 +895,9 @@ function retropie_installation() {
     enable_autostart_xwindows
     hide_openbox_windows
     autostart_openbox_apps
+    fix_quirks
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
-    fix_quirks
 }
 ### Optional Packages Installation ###
 function optional_packages_installation() {
