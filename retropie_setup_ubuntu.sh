@@ -610,14 +610,13 @@ function complete_install() {
 #--------------------------------------------------------------------------------
 #| INSTALLATION SCRIPT
 #--------------------------------------------------------------------------------
-select_install
 ### Pre-Flight functions ###
-    function preflight() {
-    check_perms
-    enable_logging
-    }
+function preflight() {
+    echo "check_perms"
+    echo "enable_logging"
+}
 ### Retropie Instllation ###
-    function retropie_installation() {
+function retropie_installation() {
     install_retropie_dependencies
     install_retropie
     disable_sudo_password
@@ -631,9 +630,9 @@ select_install
     set_resolution_xwindows "1920x1080"          # Run 'xrandr --display :0' when a X Windows session is running to the supported resolutions
     set_resolution_grub "1920x1080x32"           # Run 'vbeinfo' (legacy, pre 18.04) or 'videoinfo' (UEFI) from the GRUB command line to see the supported modes
     fix_quirks
-    }
+}
 ### Optional Packages Installation ###
-    function optional_packages_installation() {
+function optional_packages_installation() {
     select_options
     for SELECTION in $OPTIONS; do
     case $SELECTION in
@@ -693,11 +692,12 @@ select_install
         ;;
     esac
     done
-    }
-    # Completion functions
-    function complete_installation() {
+}
+# Completion functions
+function complete_installation() {
     repair_permissions
     remove_unneeded_packages
     complete_install
-    }
+}
 
+select_install
