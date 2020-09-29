@@ -22,6 +22,34 @@ APT_RECOMMENDS=
 
 ################################################# START CORE FUNCTIONS #################################################
 
+# Make sure the user is running the script via sudo
+function check_perms() {
+echo "--------------------------------------------------------------------------------"
+echo "| Checking permissions..."
+echo "--------------------------------------------------------------------------------"
+if [ -z "$SUDO_USER" ]; then
+    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
+    exit 1
+fi
+# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
+if [[ "$SUDO_USER" == root ]]; then
+    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
+    exit 1
+fi
+}
+
+
+# Output to both console and log file
+function enable_logging() {
+    echo "--------------------------------------------------------------------------------"
+    echo "| Saving console output to '$LOG_FILE'"
+    echo "--------------------------------------------------------------------------------"
+    touch $LOG_FILE
+    exec > >(tee $LOG_FILE) 2>&1
+    sleep 2
+}
+
+
 # Menu to present full or optional package install
 function select_install() {
 resize -s 40 90 > /dev/null #Change window size.
@@ -64,7 +92,6 @@ fi
 }
 
 
-
 # Menu to present installation and configuration options
 function select_options() {
 resize -s 40 90 > /dev/null #Change window size.
@@ -96,34 +123,6 @@ if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it mea
 else
     clear
 fi
-}
-
-
-# Make sure the user is running the script via sudo
-function check_perms() {
-echo "--------------------------------------------------------------------------------"
-echo "| Checking permissions..."
-echo "--------------------------------------------------------------------------------"
-if [ -z "$SUDO_USER" ]; then
-    echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
-    exit 1
-fi
-# Don't allow the user to run this script from the root account. RetroPie doesn't like this.
-if [[ "$SUDO_USER" == root ]]; then
-    echo "RetroPie-Setup-Ubuntu should not be installed by the root user.  Please run as normal user using sudo."
-    exit 1
-fi
-}
-
-
-# Output to both console and log file
-function enable_logging() {
-    echo "--------------------------------------------------------------------------------"
-    echo "| Saving console output to '$LOG_FILE'"
-    echo "--------------------------------------------------------------------------------"
-    touch $LOG_FILE
-    exec > >(tee $LOG_FILE) 2>&1
-    sleep 2
 }
 
 
