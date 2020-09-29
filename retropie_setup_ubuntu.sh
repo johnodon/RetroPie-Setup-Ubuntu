@@ -904,41 +904,50 @@ function optional_packages_installation() {
     select_options
     for SELECTION in $OPTIONS; do
     case $SELECTION in
-    install_latest_nvidia_drivers)
-        install_latest_nvidia_drivers
-        ;;
     install_latest_intel_drivers)
         install_latest_intel_drivers
+        ;;
+    install_latest_nvidia_drivers)
+        install_latest_nvidia_drivers
         ;;
     install_latest_vulkan_drivers)
         install_latest_vulkan_drivers
         ;;
+    enable_plymouth_theme)
+        enable_plymouth_theme "retropie-pacman"
+        ;;
     install_retroarch_shaders)
         install_retroarch_shaders
         ;;
-    enable_plymouth_theme)
-        enable_plymouth_theme "retropie-pacman"
+    install_extra_tools)
+        install_extra_tools
         ;;
     disable_apparmor)
         disable_apparmor
         ;;
-    disable_ipv6)
-        disable_ipv6
-        ;;
-    disable_avahi)
-        disable_avahi
+    disable_avahi_daemon)
+        disable_avahi_daemon
         ;;
     disable_bluetooth)
         disable_bluetooth
         ;;
+    disable_ipv6)
+        disable_ipv6
+        ;;
     disable_kernel_mitigations)
         disable_kernel_mitigations
+        ;;
+    disable_modemmanager)
+        disable_modemmanager
         ;;
     disable_samba)
         disable_samba
         ;;
-    disable_unattended)
-        disable_unattended
+    disable_unattended_upgrades)
+        disable_unattended_upgrades
+        ;;
+    enable_unattended_upgrades)
+        enable_unattended_upgrades
         ;;
     enable_wifi)
         enable_wifi
@@ -946,7 +955,7 @@ function optional_packages_installation() {
     force_apt_ipv4)
         force_apt_ipv4
         ;;
-    add_bezelproject)
+    install_bezelproject)
         add_bezelproject
         ;;
     remove_snap)
@@ -954,9 +963,6 @@ function optional_packages_installation() {
         ;;
     xcursor_to_dot)
         xcursor_to_dot
-        ;;
-    disable_modemmanager)
-        disable_modemmanager
         ;;
     esac
     done
