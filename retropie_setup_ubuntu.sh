@@ -611,7 +611,7 @@ sleep 2
 ###############################################################################
 function disable_ipv6() {
 echo "--------------------------------------------------------------------------------"
-echo "| Disabling IPV6…“
+echo "| Disabling IPv6"
 echo "--------------------------------------------------------------------------------"
 # Disable IPv6 via GRUB
 sed -i -e 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 /' /etc/default/grub
