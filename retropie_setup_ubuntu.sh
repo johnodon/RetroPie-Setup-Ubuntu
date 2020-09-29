@@ -203,7 +203,7 @@ function hide_boot_messages() {
 
 # Suppress errors being written to $HOME/.xsession-errors  
 # Also creates an init task that deletes the ~/.xsession-errors file at # each startup
-function suppress_xsession_errors () {
+function suppress_xsession_errors() {
 echo "--------------------------------------------------------------------------------"
 echo "| Suppressing errors in $HOME/.xsession-errors"
 echo "--------------------------------------------------------------------------------"
