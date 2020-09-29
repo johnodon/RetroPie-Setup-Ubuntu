@@ -532,8 +532,7 @@ function install_retroarch_shaders() {
 #--------------------------------------------------------------------------------
 function install_extra_tools() {
     echo "--------------------------------------------------------------------------------"
-    echo "| Installing the following tools to improve usability:"
-    echo "| ${EXTRA_TOOLS[@]}"
+    echo "| Installing the extra tools to improve usability:"
     echo "--------------------------------------------------------------------------------"
     apt-get update
     apt-get install -y openssh-server xdg-utils unclutter inxi
