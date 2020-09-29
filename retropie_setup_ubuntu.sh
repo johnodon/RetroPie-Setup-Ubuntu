@@ -550,6 +550,271 @@ function install_extra_tools() {
     sleep 2
 }
 
+
+###############################################################################
+# Disables the apparmor service
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function disable_apparmor() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling the apparmor service"
+echo "--------------------------------------------------------------------------------"
+systemctl disable apparmor
+echo -e "FINISHED disable_apparmor \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disables the avahi-daemon service
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function disable_avahi_daemon() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling the avahi-daemon service"
+echo "--------------------------------------------------------------------------------"
+systemctl disable avahi-daemon.service
+echo -e "FINISHED disable_avahi_daemon \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disables the bluetooth service
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function disable_bluetooth() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling the bluetooth service"
+echo "--------------------------------------------------------------------------------"
+systemctl disable bluetooth.service
+echo -e "FINISHED disable_bluetooth \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disable IPv6 which is known to have a potential negative impact on some
+# applications and services.
+#
+#
+# Contributor: johnodon
+# Reference: https://tek.io/3j7AdmN
+###############################################################################
+function disable_ipv6() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling IPV6…“
+echo "--------------------------------------------------------------------------------"
+# Disable IPv6 via GRUB
+sed -i -e 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 /' /etc/default/grub
+sed -i -e 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
+update-grub
+echo -e "FINISHED disable_ipv6 \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disable Spectre, Meltdown, etc. mitigations in kernel
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function disable_kernel_mitigations() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling Spectre, Meltdown, etc. kernel mitigations"
+echo "--------------------------------------------------------------------------------"
+cp /etc/default/grub /etc/default/grub.backup-$(date +"%Y%m%d_%H%M%S")
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"/&mitigations=off /' /etc/default/grub
+update-grub
+echo -e "FINISHED disable_kernel_mitigations \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disables the ModemManager service
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function disable_modemmanager() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling the ModemManager service"
+echo "--------------------------------------------------------------------------------"
+systemctl disable ModemManager.service
+echo -e "FINISHED disable_modemmanager \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disables Samba's smbd and nmbd services
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function disable_samba() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling the Samba services (smbd, nmbd)"
+echo "--------------------------------------------------------------------------------"
+systemctl disable smbd.service nmbd.service
+echo -e "FINISHED disable_samba \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Disables the unattended upgrade process, which can cause the master install
+# script to fail when an unattended upgrade is already in progress. 
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/236200
+###############################################################################
+function disable_unattended_upgrades() {
+echo "--------------------------------------------------------------------------------"
+echo "| Disabling unattended upgrades"
+echo "--------------------------------------------------------------------------------"
+systemctl stop unattended-upgrades
+systemctl status unattended-upgrades
+systemctl disable unattended-upgrades
+# dpkg-reconfigure -plow unattended-upgrades 
+# dpkg --configure -a 
+# cat /etc/apt/apt.conf.d/20auto-upgrades
+echo -e "FINISHED disable_unattended_upgrades \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Enables unattended upgrades.  Typically used to restore this functionality 
+# after at the end of a script run.  See disable_unattended_upgrades.sh.
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/236200
+###############################################################################
+function enable_unattended_upgrades() {
+echo "--------------------------------------------------------------------------------"
+echo "| Enabling unattended upgrades"
+echo "--------------------------------------------------------------------------------"
+sleep 5
+systemctl start unattended-upgrades
+systemctl status unattended-upgrades
+systemctl enable unattended-upgrades
+## dpkg-reconfigure -plow unattended-upgrades
+cat /etc/apt/apt.conf.d/20auto-upgrades
+dpkg --configure -a ; # make sure everything is in synch; unnessary..yes?
+echo -e "FINISHED enable_unattended_upgrades \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Install WiFi support via the wpasupplicant package.
+# Configuration should be completed via retropie-setup
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function enable_wifi() {
+echo "--------------------------------------------------------------------------------"
+echo "| Enabling WiFi support.  Configuration should be completed via retropie-setup."
+echo "--------------------------------------------------------------------------------"
+apt-get install -y $APT_RECOMMENDS wpasupplicant
+echo -e "FINISHED enable_wifi \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Forces APT to use IPV4, which can prevent package installation errors when
+# IPV6 name resolution fails for some users.
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/236200
+###############################################################################
+function force_apt_ipv4() {
+echo "--------------------------------------------------------------------------------"
+echo "| Forcing apt to use IPV4"
+echo "--------------------------------------------------------------------------------"
+## https://unix.stackexchange.com/questions/9940/convince-apt-get-not-to-use-ipv6-method
+echo 'Acquire::ForceIPv4 "true";' | sudo tee /etc/apt/apt.conf.d/99force-ipv4
+echo -e "FINISHED force_apt_ipv4 \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Install the Bezel Project into the RetroPie menu.
+# Configuration should be completed through the menu option
+# See https://github.com/thebezelproject/BezelProject
+#
+# NOTE: Should be installed as a post_install script
+#
+# Contributor: MizterB
+# Reference: https://github.com/MizterB/RetroPie-Setup-Ubuntu/issues/2
+###############################################################################
+function install_bezelproject() {
+echo "--------------------------------------------------------------------------------"
+echo "| Installing the Bezel Project to the RetroPie menu"
+echo "--------------------------------------------------------------------------------"
+mkdir -p "$USER_HOME/RetroPie/retropiemenu"
+wget -O "$USER_HOME/RetroPie/retropiemenu/bezelproject.sh" "https://raw.githubusercontent.com/thebezelproject/BezelProject/master/bezelproject.sh"
+chmod +x "$USER_HOME/RetroPie/retropiemenu/bezelproject.sh"
+echo -e "FINISHED install_bezelproject \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Remove snap daemon
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234008
+###############################################################################
+function remove_snap() {
+echo "--------------------------------------------------------------------------------"
+echo "| Removing snap daemon"
+echo "--------------------------------------------------------------------------------"
+snap list
+snap remove lxd
+snap remove core18
+snap remove snapd
+## TODO: maybe rm -rf /snapd  
+echo -e "FINISHED remove_snap \n\n"
+sleep 2
+}
+
+
+###############################################################################
+# Turn the X mouse pointer into 1x1 pixel black dot, hiding it completely.
+#
+# This further enhances the default behavior, which uses the 'unclutter' 
+# program show the mouse pointer when moved, and hide after a second of 
+# inactivity
+#
+# Contributor: etherling
+# Reference: https://retropie.org.uk/forum/post/234104
+###############################################################################
+function xcursor_to_dot() {
+echo "--------------------------------------------------------------------------------"
+echo "| Turning the X mouse pointer into 1x1 pixel black dot"
+echo "--------------------------------------------------------------------------------"
+git clone --depth=1 https://github.com/etheling/dot1x1-gnome-cursor-theme /tmp/dot1x1-gnome-cursor-theme
+tar zxf /tmp/dot1x1-gnome-cursor-theme/dot1x1-cursor-theme.tar.gz -C /usr/share/icons
+cp /usr/share/icons/default/index.theme /usr/share/icons/default/index.theme.orig
+cp dot1x1-gnome-cursor-theme/index.theme /usr/share/icons/default/index.theme
+rm -rf /tmp/dot1x1-gnome-cursor-theme
+echo -e "FINISHED xcursor_to_dot \n\n"
+sleep 2
+}
+
 ################################################ END OPTIONAL FUNCTIONS ###############################################
 
 
