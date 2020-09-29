@@ -120,6 +120,7 @@ if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it mea
     echo
     echo "No options have been selected or user has exited the installer."
     echo
+    exit
 else
     clear
 fi
