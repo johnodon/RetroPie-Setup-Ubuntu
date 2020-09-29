@@ -630,7 +630,7 @@ sleep 2
 ###############################################################################
 function disable_kernel_mitigations() {
 echo "--------------------------------------------------------------------------------"
-echo "" Disabling Spectre, Meltdown, etc. kernel mitigations"
+echo "| Disabling Spectre, Meltdown, etc. kernel mitigations"
 echo "--------------------------------------------------------------------------------"
 cp /etc/default/grub /etc/default/grub.backup-$(date +"%Y%m%d_%H%M%S")
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"/&mitigations=off /' /etc/default/grub
@@ -808,11 +808,11 @@ function xcursor_to_dot() {
 echo "--------------------------------------------------------------------------------"
 echo "| Turning the X mouse pointer into 1x1 pixel black dot"
 echo "--------------------------------------------------------------------------------"
-git clone --depth=1 https://github.com/etheling/dot1x1-gnome-cursor-theme /tmp/dot1x1-gnome-cursor-theme
-tar zxf /tmp/dot1x1-gnome-cursor-theme/dot1x1-cursor-theme.tar.gz -C /usr/share/icons
+git clone --depth=1 https://github.com/etheling/dot1x1-gnome-cursor-theme ~/tmp/dot1x1-gnome-cursor-theme
+tar zxf ~/tmp/dot1x1-gnome-cursor-theme/dot1x1-cursor-theme.tar.gz -C /usr/share/icons
 cp /usr/share/icons/default/index.theme /usr/share/icons/default/index.theme.orig
-cp dot1x1-gnome-cursor-theme/index.theme /usr/share/icons/default/index.theme
-rm -rf /tmp/dot1x1-gnome-cursor-theme
+cp ~/tmp/dot1x1-gnome-cursor-theme/index.theme /usr/share/icons/default/index.theme
+rm -rf ~/tmp/dot1x1-gnome-cursor-theme
 echo -e "FINISHED xcursor_to_dot \n\n"
 sleep 2
 }
