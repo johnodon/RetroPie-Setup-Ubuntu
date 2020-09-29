@@ -100,10 +100,10 @@ fi
 
 
 # Make sure the user is running the script via sudo
+function check_perms() {
 echo "--------------------------------------------------------------------------------"
 echo "| Checking permissions..."
 echo "--------------------------------------------------------------------------------"
-function check_perms() {
 if [ -z "$SUDO_USER" ]; then
     echo "Installing RetroPie-Setup-Ubuntu requires sudo privileges. Please run with: sudo $0"
     exit 1
