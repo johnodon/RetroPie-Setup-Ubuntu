@@ -230,8 +230,8 @@ sed -i 's|exec >>"$ERRFILE" 2>&1|exec >>/dev/null|g' /etc/X11/Xsession
 #EOF
 #chmod +x /etc/init.d/xsession-errors
 #ln -s /etc/init.d/xsession-errors /etc/rc2.d/S15xsession-errors
-#echo -e "FINISHED suppress_xsession_errors \n\n"
-#sleep 2
+echo -e "FINISHED suppress_xsession_errors \n\n"
+sleep 2
 }
 
 
