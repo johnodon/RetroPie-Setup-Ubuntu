@@ -211,8 +211,8 @@ echo "--------------------------------------------------------------------------
 echo "| Suppressing errors in $HOME/.xsession-errors"
 echo "--------------------------------------------------------------------------------"
 # Create ~/.config/autostart folder and fix perms
-mkdir -p $USER_HOME/.config/autostart
-chown -R $USER:$USER $USER_HOME/.config/autostart
+#mkdir -p $USER_HOME/.config/autostart
+#chown -R $USER:$USER $USER_HOME/.config/autostart
 
 # Rename .desktop files to .desktop.skip
 #find /etc/xdg/autostart/ -depth -name "*.desktop" -exec sh -c 'mv "$1" "${1%.abc}.skip"' _ {} \;
@@ -224,14 +224,14 @@ cp /etc/X11/Xsession /etc/X11/Xsession-backup-$(date +"%Y%m%d_%H%M%S")
 sed -i 's|exec >>"$ERRFILE" 2>&1|exec >>/dev/null|g' /etc/X11/Xsession
 
 # Create init job to delete ~/.xsession-errors at each login
-cat << EOF >> /etc/init.d/xsession-errors
-#!/bin/sh
-rm $USER_HOME/.xsession-errors >/dev/null 2>&1
-EOF
-chmod +x /etc/init.d/xsession-errors
-ln -s /etc/init.d/xsession-errors /etc/rc2.d/S15xsession-errors
-echo -e "FINISHED suppress_xsession_errors \n\n"
-sleep 2
+#cat << EOF >> /etc/init.d/xsession-errors
+##!/bin/sh
+#rm $USER_HOME/.xsession-errors >/dev/null 2>&1
+#EOF
+#chmod +x /etc/init.d/xsession-errors
+#ln -s /etc/init.d/xsession-errors /etc/rc2.d/S15xsession-errors
+#echo -e "FINISHED suppress_xsession_errors \n\n"
+#sleep 2
 }
 
 
