@@ -215,9 +215,13 @@ mkdir -p $USER_HOME/.config/autostart
 chown -R $USER:$USER $USER_HOME/.config/autostart
 
 # Rename .desktop files to .desktop.skip
-find /etc/xdg/autostart/ -depth -name "*.desktop" -exec sh -c 'mv "$1" "${1%.abc}.skip"' _ {} \;
+#find /etc/xdg/autostart/ -depth -name "*.desktop" -exec sh -c 'mv "$1" "${1%.abc}.skip"' _ {} \;
 # Except this one...
-mv /etc/xdg/autostart/org.gnome.SettingsDaemon.XSettings.desktop.skip /etc/xdg/autostart/org.gnome.SettingsDaemon.XSettings.desktop
+#mv /etc/xdg/autostart/org.gnome.SettingsDaemon.XSettings.desktop.skip /etc/xdg/autostart/org.gnome.SettingsDaemon.XSettings.desktop
+
+# Change /etc/X11/Xsession to send errors to /dev/null
+cp /etc/X11/Xsession /etc/X11/Xsession-backup-$(date +"%Y%m%d_%H%M%S")
+sed -i 's|exec >>"$ERRFILE" 2>&1|exec >>/dev/null|g' /etc/X11/Xsession
 
 # Create init job to delete ~/.xsession-errors at each login
 cat << EOF >> /etc/init.d/xsession-errors
