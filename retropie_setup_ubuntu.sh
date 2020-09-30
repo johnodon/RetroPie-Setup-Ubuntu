@@ -219,10 +219,13 @@ echo "--------------------------------------------------------------------------
 # Except this one...
 #mv /etc/xdg/autostart/org.gnome.SettingsDaemon.XSettings.desktop.skip /etc/xdg/autostart/org.gnome.SettingsDaemon.XSettings.desktop
 
-# Change /etc/X11/Xsession to send errors to /dev/null
-cp /etc/X11/Xsession /etc/X11/Xsession-backup-$(date +"%Y%m%d_%H%M%S")
+# Remove ~/.xession-errors and create symlink to /dev/null
+#cp /etc/X11/Xsession /etc/X11/Xsession-backup-$(date +"%Y%m%d_%H%M%S")
 #sed -i 's|exec >>"$ERRFILE" 2>&1|exec >>/dev/null|g' /etc/X11/Xsession
-sed -i 's|ERRFILE=$HOME/.xsession-errors|ERRFILE=/dev/null|g' /etc/X11/Xsession
+#sed -i 's|ERRFILE=$HOME/.xsession-errors|ERRFILE=/dev/null|g' /etc/X11/Xsession
+rm $USER_HOME/.xsession-errors
+ln -s /dev/null .xsession-errors
+chown $USER:$USER $USER_HOME/.xsession-errors
 
 # Create init job to delete ~/.xsession-errors at each login
 #cat << EOF >> /etc/init.d/xsession-errors
