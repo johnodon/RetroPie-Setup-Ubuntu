@@ -94,7 +94,7 @@ fi
 
 # Menu to present installation and configuration options
 function select_options() {
-resize -s 40 90 > /dev/null #Change window size.
+#resize -s 40 90 > /dev/null #Change window size.
 OPTIONS=$(dialog --separate-output --no-tags --clear --backtitle "Installer Options..." --title "OS and Retropie Configuration Options" \
     --checklist "Use SPACE to select/deselct options and OK when finished."  30 100 30 \
        install_latest_intel_drivers "Install latest Intel GPU drivers" off \
@@ -117,7 +117,6 @@ OPTIONS=$(dialog --separate-output --no-tags --clear --backtitle "Installer Opti
        install_bezelproject "Install the Bezel Project into the RetroPie menu" off \
        remove_snap "Remove the SNAP daemon" off \
        xcursor_to_dot "Turn the X mouse pointer into 1x1 pixel black dot, hiding it completely" off 2>&1 > /dev/tty)
-       
 if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
    clear
     echo
@@ -450,7 +449,7 @@ function set_resolution_grub() {
 function install_latest_intel_drivers() {
     echo "--------------------------------------------------------------------------------"
     echo "| Installing the latest Intel video drivers from 'ppa:ubuntu-x-swat/updates'"
-    echo "| This may throw errors on a new release if this PPA does not supportit yet (OK)."
+    echo "| This may throw errors on a new release if this PPA does not supportit yet (OK)"
     echo "--------------------------------------------------------------------------------"
     add-apt-repository -y ppa:ubuntu-x-swat/updates
     apt-get update && apt-get -y upgrade
