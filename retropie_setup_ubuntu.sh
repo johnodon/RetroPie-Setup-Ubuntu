@@ -114,7 +114,7 @@ OPTIONS=$(dialog --separate-output --no-tags --clear --backtitle "Installer Opti
        enable_unattended_upgrades "Enable unattended upgrades" off \
        enable_wifi "Install WiFi support via the wpasupplicant package" off \
        force_apt_ipv4 "Forces APT to use IPV4" off \
-       install_bezelproject "Install the Bezel Project into the RetroPie menu" off \
+       install_bezelproject "Add the Bezel Project into the RetroPie menu" off \
        remove_snap "Remove the SNAP daemon" off \
        xcursor_to_dot "Turn the X mouse pointer into 1x1 pixel black dot, hiding it completely" off 2>&1 > /dev/tty)
 if [ -z $OPTIONS ]; then #Check if the variable is empty. If it is empty, it means that the user has not chosen an option.
@@ -777,7 +777,8 @@ echo "| Installing the Bezel Project to the RetroPie menu"
 echo "--------------------------------------------------------------------------------"
 mkdir -p "$USER_HOME/RetroPie/retropiemenu"
 wget -O "$USER_HOME/RetroPie/retropiemenu/bezelproject.sh" "https://raw.githubusercontent.com/thebezelproject/BezelProject/master/bezelproject.sh"
-chmod +x "$USER_HOME/RetroPie/retropiemenu/bezelproject.sh"
+#chmod +x "$USER_HOME/RetroPie/retropiemenu/bezelproject.sh"
+chown -R $USER:$USER $USER_HOME/RetroPie/retropiemenu/bezelproject.sh"
 echo -e "FINISHED install_bezelproject \n\n"
 sleep 2
 }
@@ -967,7 +968,7 @@ function optional_packages_installation() {
         force_apt_ipv4
         ;;
     install_bezelproject)
-        add_bezelproject
+        install_bezelproject
         ;;
     remove_snap)
         remove_snap
