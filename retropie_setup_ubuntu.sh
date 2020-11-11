@@ -863,13 +863,13 @@ function remove_unneeded_packages() {
 ############################################## START COMPLETION FUNCTIONS #############################################
 
 # Prompt user for reboot
-function prompt_for_reboot() {
-    read -p "Reboot the system now? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        reboot
-    fi
-}
+#function prompt_for_reboot() {
+#    read -p "Reboot the system now? (y/n) " -n 1 -r
+#    echo
+#    if [[ $REPLY =~ ^[Yy]$ ]]; then
+#        reboot
+#    fi
+#}
 
 
 # Final message to user
@@ -880,7 +880,7 @@ function complete_install() {
     echo "| Runtime: $(($RUNTIME / 60)) minutes and $(($RUNTIME % 60)) seconds"
     echo "| Output has been logged to '$LOG_FILE'"
     echo "--------------------------------------------------------------------------------"
-    prompt_for_reboot
+#    prompt_for_reboot
 }
 
 ############################################### END COMPLETION FUNCTIONS ##############################################
